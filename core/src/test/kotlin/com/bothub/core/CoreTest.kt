@@ -43,7 +43,13 @@ class CoreTest {
     fun `pairing links`() {
         val code = "a".repeat(48)
         assertEquals(PairLink("https://bothub.example", code), PairLink.parse("bothub://pair?server=https%3A%2F%2Fbothub.example%2F&code=$code"))
+        assertEquals("ann", PairLink.parse("bothub://pair?server=https%3A%2F%2Fbothub.example&user=ann&code=$code")!!.user)
         assertTrue(PairLink.parse("bothub://pair?server=http%3A%2F%2F192.168.1.5%3A8080&code=$code")!!.insecure)
+        // A public host given as http: https (the proxy would redirect and drop the POST body).
+        assertEquals("https://gitkljub.com", PairLink.parse("bothub://pair?server=http%3A%2F%2Fgitkljub.com&code=$code")!!.server)
+        assertEquals("http://bothub.local:8080", PairLink.parse("bothub://pair?server=http%3A%2F%2Fbothub.local%3A8080&code=$code")!!.server)
+        assertEquals("http://localhost:8095", PairLink.parse("bothub://pair?server=http%3A%2F%2Flocalhost%3A8095&code=$code")!!.server)
+        assertTrue(PairLink.isLocal("172.20.1.1") && PairLink.isLocal("nas") && !PairLink.isLocal("8.8.8.8") && !PairLink.isLocal("172.32.0.1"))
         assertNull(PairLink.parse("https://evil.example/pair?code=$code"))
         assertNull(PairLink.parse("bothub://pair?server=ftp%3A%2F%2Fx&code=$code"))
         assertNull(PairLink.parse("bothub://pair?server=https%3A%2F%2Fx&code=short"))

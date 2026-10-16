@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="pair_title">Mit BotHub koppeln</string>
-    <string name="pair_intro">Öffne im BotHub-Dashboard Einstellungen → Mobile App → QR-Code anzeigen und scanne ihn hier.</string>
+    <string name="pair_intro">Öffne im BotHub-Dashboard Einstellungen → Mobile App → QR-Code anzeigen und scanne ihn hier. Der Code wechselt alle 30 Sekunden: scanne den, der gerade angezeigt wird.</string>
     <string name="pair_scan">QR-Code scannen</string>
     <string name="pair_paste">Oder Kopplungs-Link einfügen</string>
     <string name="pair_name">Name dieses Handys</string>
     <string name="pair_confirm">Koppeln</string>
     <string name="pair_server">Server: %1$s</string>
+    <string name="pair_user">Konto: %1$s</string>
     <string name="pair_insecure">Dieser Server nutzt unverschlüsseltes http. Nutze ihn nur im eigenen Netz.</string>
     <string name="pair_bad_link">Das ist kein BotHub-Kopplungs-Link.</string>
     <string name="pair_scan_prompt">Scanne den QR-Code des BotHub-Dashboards</string>

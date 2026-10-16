@@ -43,7 +43,7 @@ class Session(private val context: Context) {
 
     suspend fun pair(link: PairLink, name: String) {
         val c = BotHubClient(link.server, signer)
-        val p = c.pair(link.code, name, BuildConfig.VERSION_NAME)
+        val p = c.pair(link.code, name, BuildConfig.VERSION_NAME, link.user)
         store.put("server", link.server)
         store.put("user", p.user.username)
         store.put("deviceId", p.device.id)

@@ -78,6 +78,7 @@ fun PairScreen(session: Session, deepLink: String?, onDeepLinkUsed: () -> Unit) 
             OutlinedTextField(pasted, { pasted = it; if (it.startsWith("bothub://")) take(it) }, Modifier.fillMaxWidth(), label = { Text(stringResource(R.string.pair_paste)) }, singleLine = true)
         } else {
             Text(stringResource(R.string.pair_server, l.server))
+            if (l.user.isNotEmpty()) Text(stringResource(R.string.pair_user, l.user))
             if (l.insecure) Text(stringResource(R.string.pair_insecure), color = MaterialTheme.colorScheme.error, textAlign = TextAlign.Center)
             OutlinedTextField(name, { name = it.take(40) }, Modifier.fillMaxWidth(), label = { Text(stringResource(R.string.pair_name)) }, singleLine = true)
             if (busy) CircularProgressIndicator() else Button(enabled = name.isNotBlank(), onClick = {

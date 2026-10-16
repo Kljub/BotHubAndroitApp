@@ -34,10 +34,10 @@ class BotHubClient(
             .connectTimeout(10, TimeUnit.SECONDS).readTimeout(20, TimeUnit.SECONDS).build()
     }
 
-    /** Trades the one-time code of the QR code for a device token. */
-    suspend fun pair(code: String, name: String, appVersion: String): Pairing {
+    /** Trades the validation key of the QR code (and its user) for a device token. */
+    suspend fun pair(code: String, name: String, appVersion: String, user: String = ""): Pairing {
         val body = buildJsonObject {
-            put("code", code); put("name", name); put("platform", "android"); put("appVersion", appVersion)
+            put("code", code); put("user", user); put("name", name); put("platform", "android"); put("appVersion", appVersion)
             put("publicKey", Signing.base64Url(signer.publicKeySpki))
         }
         val p: Pairing = call("POST", "/api/v1/mobile/pair", body, signed = false)

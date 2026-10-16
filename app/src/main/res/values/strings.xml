@@ -2,12 +2,13 @@
 <resources>
     <string name="app_name">BotHub</string>
     <string name="pair_title">Pair with BotHub</string>
-    <string name="pair_intro">In the BotHub dashboard open Settings → Mobile App → Show QR code, then scan it here.</string>
+    <string name="pair_intro">In the BotHub dashboard open Settings → Mobile App → Show QR code, then scan it here. The code changes every 30 seconds: scan the one on the screen.</string>
     <string name="pair_scan">Scan QR code</string>
     <string name="pair_paste">Or paste the pairing link</string>
     <string name="pair_name">Name of this phone</string>
     <string name="pair_confirm">Pair</string>
     <string name="pair_server">Server: %1$s</string>
+    <string name="pair_user">Account: %1$s</string>
     <string name="pair_insecure">This server uses plain http. Use it only in your own network.</string>
     <string name="pair_bad_link">That is no BotHub pairing link.</string>
     <string name="pair_scan_prompt">Scan the QR code of the BotHub dashboard</string>

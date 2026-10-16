@@ -9,13 +9,16 @@ The app talks to the dashboard address of the QR code; the dashboard forwards
 `POST /api/v1/mobile/pair` (no auth; the one-time code is the proof)
 
 ```json
-{ "code": "<48 hex>", "name": "Pixel 9", "platform": "android", "appVersion": "1.0.0", "publicKey": "<SPKI P-256, base64url>" }
+{ "code": "<48 hex>", "user": "<user name of the QR code>", "name": "Pixel 9", "platform": "android", "appVersion": "1.0.0", "publicKey": "<SPKI P-256, base64url>" }
 ```
 
 → `201 { "token": "bhm_…", "guardSecret": "<base32>", "device": {…}, "user": { "id", "username" } }`
 
-The code comes from the QR code `bothub://pair?server=<dashboard>&code=<code>`,
-valid 5 minutes and once. Token and guard secret are given only here.
+The QR code is `bothub://pair?server=<dashboard>&user=<user name>&code=<key>`.
+The dashboard keeps a pairing open for 5 minutes; its validation key is new
+every 30 seconds (the QR code is drawn again) and works until the next one
+plus 10 seconds. The user name must match. A pairing works once. Token and
+guard secret are given only here.
 
 ## Signed requests
 

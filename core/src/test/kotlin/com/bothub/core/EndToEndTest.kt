@@ -57,10 +57,12 @@ class EndToEndTest {
         assertEquals(200, browser.login().first)
 
         // Dashboard: QR code → the phone pairs.
-        val code = Json.parseToJsonElement(browser.call("POST", "/api/v1/account/devices/pairing", "{}").second).jsonObject["code"]!!.jsonPrimitive.content
-        val link = PairLink.parse("bothub://pair?server=" + java.net.URLEncoder.encode(url, "UTF-8") + "&code=$code")!!
+        val qr = Json.parseToJsonElement(browser.call("POST", "/api/v1/account/devices/pairing", "{}").second).jsonObject
+        val code = qr["code"]!!.jsonPrimitive.content
+        assertEquals(user, qr["user"]!!.jsonPrimitive.content)
+        val link = PairLink.parse("bothub://pair?server=" + java.net.URLEncoder.encode(url, "UTF-8") + "&user=$user&code=$code")!!
         val phone = BotHubClient(link.server, JvmSigner())
-        val pairing = phone.pair(link.code, "E2E Phone", "0.0.0-test")
+        val pairing = phone.pair(link.code, "E2E Phone", "0.0.0-test", link.user)
         assertEquals(user, pairing.user.username)
         assertEquals("E2E Phone", phone.me().device.name)
         phone.bots() // the user's bots (may be none)
