@@ -5,7 +5,11 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.Modifier
 import com.bothub.app.ui.AppRoot
 import com.bothub.app.ui.BotHubTheme
 
@@ -20,7 +24,11 @@ class MainActivity : ComponentActivity() {
         val session = (application as BotHubApp).session
         setContent {
             BotHubTheme {
-                AppRoot(session, deepLink.value) { deepLink.value = null }
+                // The surface gives every screen (also pairing, outside the Scaffold)
+                // the theme's background and text colour.
+                Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+                    AppRoot(session, deepLink.value) { deepLink.value = null }
+                }
             }
         }
     }

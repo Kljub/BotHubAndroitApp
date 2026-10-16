@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Dark mode: the window behind the Compose surface (no white flash at start). -->
+<resources>
+    <color name="background">#0F1115</color>
+</resources>
