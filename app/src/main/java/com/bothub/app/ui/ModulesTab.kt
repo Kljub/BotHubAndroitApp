@@ -45,7 +45,7 @@ import androidx.compose.ui.unit.dp
 import com.bothub.app.R
 import com.bothub.app.Session
 import com.bothub.core.Catalog
-import com.bothub.core.ModuleCommand
+import com.bothub.core.CommandCopy
 import com.bothub.core.ModuleState
 import kotlinx.coroutines.launch
 
@@ -102,7 +102,7 @@ fun ModulesTab(session: Session, botId: Long, states: List<ModuleState>, onToggl
                                     Text(m.icon.ifEmpty { "•" }, Modifier.width(30.dp))
                                     Column(Modifier.weight(1f)) {
                                         Text(session.text("module.${m.key}.name").takeUnless { it.startsWith("module.") } ?: m.key, style = MaterialTheme.typography.bodyLarge)
-                                        Text(stringResource(R.string.module_commands_hint), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                        if (m.commands.isNotEmpty()) Text(stringResource(R.string.module_commands_count, m.commands.size), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                     }
                                     Switch(state.enabled, { onToggle(m.key, it) },
                                         colors = SwitchDefaults.colors(checkedTrackColor = color, checkedThumbColor = Color.White))
@@ -122,14 +122,14 @@ fun ModulesTab(session: Session, botId: Long, states: List<ModuleState>, onToggl
     }
 }
 
-/** The commands of one module, each with its own switch. */
+/** The commands of one module: the switch of each is the bot's copy of it. */
 @Composable
 private fun ModuleCommandsSheet(session: Session, botId: Long, module: Catalog.Module, color: Color) {
-    var commands by remember { mutableStateOf<List<ModuleCommand>?>(null) }
+    var copies by remember { mutableStateOf<Map<String, CommandCopy>?>(null) }
     var error by remember { mutableStateOf<String?>(null) }
     val scope = rememberCoroutineScope()
     LaunchedEffect(module.key) {
-        session.call { it.moduleCommands(botId, module.key) }.onSuccess { commands = it }.onFailure { error = session.errorText(it) }
+        session.call { it.commandCopies(botId) }.onSuccess { copies = it }.onFailure { error = session.errorText(it) }
     }
     Column(Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = 20.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -143,19 +143,26 @@ private fun ModuleCommandsSheet(session: Session, botId: Long, module: Catalog.M
         Text(stringResource(R.string.module_commands), style = MaterialTheme.typography.titleSmall, modifier = Modifier.padding(top = 8.dp))
         error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
         when {
-            commands == null && error == null -> CircularProgressIndicator(Modifier.padding(16.dp))
-            commands?.isEmpty() == true -> Text(stringResource(R.string.module_no_commands), color = MaterialTheme.colorScheme.onSurfaceVariant)
+            module.commands.isEmpty() -> Text(stringResource(R.string.module_no_commands), color = MaterialTheme.colorScheme.onSurfaceVariant)
+            copies == null && error == null -> CircularProgressIndicator(Modifier.padding(16.dp))
         }
-        commands.orEmpty().forEach { c ->
-            Row(Modifier.fillMaxWidth().padding(vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-                Text("/${c.name}", fontFamily = FontFamily.Monospace, modifier = Modifier.weight(1f))
-                Switch(c.enabled, { on ->
-                    scope.launch {
-                        session.call { it.setModuleCommand(botId, module.key, c.name, on) }
-                            .onSuccess { commands = commands?.map { x -> if (x.name == c.name) x.copy(enabled = on) else x } }
-                            .onFailure { error = session.errorText(it) }
+        copies?.let { map ->
+            module.commands.forEach { c ->
+                val copy = map[c.preset]
+                Row(Modifier.fillMaxWidth().padding(vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Column(Modifier.weight(1f)) {
+                        Text("/${c.name}", fontFamily = FontFamily.Monospace)
+                        if (copy == null) Text(stringResource(R.string.module_command_missing), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
-                }, colors = SwitchDefaults.colors(checkedTrackColor = color, checkedThumbColor = Color.White))
+                    Switch(copy?.enabled == true, { on ->
+                        copy ?: return@Switch
+                        scope.launch {
+                            session.call { it.setCommand(botId, copy.id, on) }
+                                .onSuccess { copies = map + (c.preset to copy.copy(enabled = on)) }
+                                .onFailure { error = session.errorText(it) }
+                        }
+                    }, enabled = copy != null, colors = SwitchDefaults.colors(checkedTrackColor = color, checkedThumbColor = Color.White))
+                }
             }
         }
         Spacer(Modifier.height(16.dp))

@@ -28,6 +28,8 @@
     <string name="modules_on">%1$d/%2$d aktiv</string>
     <string name="module_commands">Befehle</string>
     <string name="module_commands_hint">Tippen für Befehle</string>
+    <string name="module_commands_count">%1$d Befehle · tippen</string>
+    <string name="module_command_missing">Für diesen Bot noch nicht eingerichtet (Dashboard → Befehle)</string>
     <string name="module_no_commands">Dieses Modul hat keine Befehle.</string>
     <string name="plugins_empty">Für diesen Bot sind keine Plugins installiert.</string>
     <string name="guard_title">BotHub Guard</string>

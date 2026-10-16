@@ -29,6 +29,8 @@
     <string name="modules_on">%1$d/%2$d on</string>
     <string name="module_commands">Commands</string>
     <string name="module_commands_hint">Tap for commands</string>
+    <string name="module_commands_count">%1$d commands · tap</string>
+    <string name="module_command_missing">Not set up for this bot yet (dashboard → Commands)</string>
     <string name="module_no_commands">This module has no commands.</string>
     <string name="plugins_empty">No plugins installed for this bot.</string>
     <string name="guard_title">BotHub Guard</string>

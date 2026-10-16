@@ -51,9 +51,12 @@ data class LogEntry(
 @Serializable
 data class ModuleState(val key: String, val enabled: Boolean)
 
-/** A command of a module (switchable on its own). */
+/**
+ * The bot's copy of a module command in Custom Commands (what the bot
+ * really runs); [preset] links it to the module command.
+ */
 @Serializable
-data class ModuleCommand(val name: String, val enabled: Boolean)
+data class CommandCopy(val id: Long, val name: String, val enabled: Boolean, val preset: String? = null)
 
 /** The dashboard's module groups: order, icon, colour (#rrggbb) and their modules. */
 @Serializable
@@ -62,7 +65,10 @@ data class Catalog(val groups: List<Group> = emptyList()) {
     data class Group(val key: String, val icon: String = "", val color: String = "#7c5cff", val modules: List<Module> = emptyList())
 
     @Serializable
-    data class Module(val key: String, val icon: String = "")
+    data class Module(val key: String, val icon: String = "", val commands: List<Command> = emptyList())
+
+    @Serializable
+    data class Command(val name: String, val preset: String)
 }
 
 @Serializable

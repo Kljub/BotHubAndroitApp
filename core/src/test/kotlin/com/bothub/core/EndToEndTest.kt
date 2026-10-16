@@ -69,7 +69,17 @@ class EndToEndTest {
         phone.overview()
         assertTrue(phone.texts("de").containsKey("error.mobile.unpaired"))
         // The module groups of the dashboard, and admin stays web-only.
-        assertTrue(phone.catalog().groups.any { g -> g.key == "security" && g.color == "#f87171" && g.modules.any { it.key == "anticontrol" } })
+        val catalog = phone.catalog()
+        assertTrue(catalog.groups.any { g -> g.key == "security" && g.color == "#f87171" && g.modules.any { it.key == "anticontrol" } })
+        assertTrue("modules list their commands", catalog.groups.flatMap { it.modules }.any { it.commands.isNotEmpty() })
+        phone.bots().firstOrNull()?.let { bot ->
+            // Switch a module command copy off and on again (like the dashboard).
+            phone.commandCopies(bot.id).values.firstOrNull()?.let { c ->
+                phone.setCommand(bot.id, c.id, !c.enabled)
+                assertEquals(!c.enabled, phone.commandCopies(bot.id)[c.preset]!!.enabled)
+                phone.setCommand(bot.id, c.id, c.enabled)
+            }
+        }
 
         // Guard on (Security tab), then a new sign-in waits for the phone.
         assertEquals(200, browser.call("PATCH", "/api/v1/account/devices/${pairing.device.id}", """{"guard":true}""").first)

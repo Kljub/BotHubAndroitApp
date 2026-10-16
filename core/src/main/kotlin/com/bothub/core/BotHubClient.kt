@@ -56,10 +56,11 @@ class BotHubClient(
     suspend fun modules(id: Long): List<ModuleState> = call<Items<ModuleState>>("GET", "/api/v1/bots/$id/modules").items
     suspend fun setModule(id: Long, key: String, enabled: Boolean) =
         action("PUT", "/api/v1/bots/$id/modules/$key", buildJsonObject { put("enabled", enabled) })
-    suspend fun moduleCommands(id: Long, key: String): List<ModuleCommand> =
-        call<Items<ModuleCommand>>("GET", "/api/v1/bots/$id/modules/$key/commands").items.sortedBy { it.name }
-    suspend fun setModuleCommand(id: Long, key: String, name: String, enabled: Boolean) =
-        action("PUT", "/api/v1/bots/$id/modules/$key/commands/$name", buildJsonObject { put("enabled", enabled) })
+    /** The bot's command copies by preset (module commands switch these). */
+    suspend fun commandCopies(id: Long): Map<String, CommandCopy> =
+        call<Items<CommandCopy>>("GET", "/api/v1/bots/$id/commands?builtin=false").items.filter { it.preset != null }.associateBy { it.preset!! }
+    suspend fun setCommand(id: Long, commandId: Long, enabled: Boolean) =
+        action("PATCH", "/api/v1/bots/$id/commands/$commandId", buildJsonObject { put("enabled", enabled) })
     suspend fun plugins(id: Long): List<PluginState> = call<Items<PluginState>>("GET", "/api/v1/bots/$id/plugins").items
     suspend fun setPlugin(id: Long, plugin: String, enabled: Boolean) =
         action("PATCH", "/api/v1/bots/$id/plugins/$plugin", buildJsonObject { put("enabled", enabled) })
