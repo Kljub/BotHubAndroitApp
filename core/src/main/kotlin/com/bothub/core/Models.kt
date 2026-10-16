@@ -51,6 +51,20 @@ data class LogEntry(
 @Serializable
 data class ModuleState(val key: String, val enabled: Boolean)
 
+/** A command of a module (switchable on its own). */
+@Serializable
+data class ModuleCommand(val name: String, val enabled: Boolean)
+
+/** The dashboard's module groups: order, icon, colour (#rrggbb) and their modules. */
+@Serializable
+data class Catalog(val groups: List<Group> = emptyList()) {
+    @Serializable
+    data class Group(val key: String, val icon: String = "", val color: String = "#7c5cff", val modules: List<Module> = emptyList())
+
+    @Serializable
+    data class Module(val key: String, val icon: String = "")
+}
+
 @Serializable
 data class PluginState(val id: String, val name: String, val version: String = "", val icon: String = "", val enabled: Boolean = false)
 

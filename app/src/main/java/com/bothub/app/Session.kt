@@ -6,7 +6,9 @@ import com.bothub.app.security.SecureStore
 import com.bothub.core.ApiException
 import com.bothub.core.BotHubClient
 import com.bothub.core.LogEntry
+import com.bothub.core.Catalog
 import com.bothub.core.PairLink
+import com.bothub.core.PinLock
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.serialization.json.JsonPrimitive
@@ -33,6 +35,16 @@ class Session(private val context: Context) {
     var texts: Map<String, String> = emptyMap()
         private set
 
+    /** The dashboard's module groups (loaded with the texts). */
+    var catalog: Catalog = Catalog()
+        private set
+
+    /** App lock: PIN (hash) and settings, encrypted like the token. */
+    val lock = PinLock(object : PinLock.Store {
+        override fun get(name: String) = store.secret(name)
+        override fun put(name: String, value: String?) = store.putSecret(name, value)
+    })
+
     private fun load(): Pairing? {
         val server = store.get("server") ?: return null
         if (store.secret("token") == null) return null
@@ -58,6 +70,7 @@ class Session(private val context: Context) {
     suspend fun loadTexts() {
         val lang = if (Locale.getDefault().language == "de") "de" else "en"
         texts = runCatching { client?.texts(lang) }.getOrNull() ?: texts
+        catalog = runCatching { client?.catalog() }.getOrNull() ?: catalog
     }
 
     /** A dashboard text with {params} filled; the key itself when unknown. */

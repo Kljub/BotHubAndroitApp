@@ -56,6 +56,10 @@ class BotHubClient(
     suspend fun modules(id: Long): List<ModuleState> = call<Items<ModuleState>>("GET", "/api/v1/bots/$id/modules").items
     suspend fun setModule(id: Long, key: String, enabled: Boolean) =
         action("PUT", "/api/v1/bots/$id/modules/$key", buildJsonObject { put("enabled", enabled) })
+    suspend fun moduleCommands(id: Long, key: String): List<ModuleCommand> =
+        call<Items<ModuleCommand>>("GET", "/api/v1/bots/$id/modules/$key/commands").items.sortedBy { it.name }
+    suspend fun setModuleCommand(id: Long, key: String, name: String, enabled: Boolean) =
+        action("PUT", "/api/v1/bots/$id/modules/$key/commands/$name", buildJsonObject { put("enabled", enabled) })
     suspend fun plugins(id: Long): List<PluginState> = call<Items<PluginState>>("GET", "/api/v1/bots/$id/plugins").items
     suspend fun setPlugin(id: Long, plugin: String, enabled: Boolean) =
         action("PATCH", "/api/v1/bots/$id/plugins/$plugin", buildJsonObject { put("enabled", enabled) })
@@ -71,6 +75,9 @@ class BotHubClient(
 
     /** The dashboard's texts for log lines, errors and states (public). */
     suspend fun texts(lang: String): Map<String, String> = call("GET", "/mobile/texts/$lang", signed = false)
+
+    /** The module groups of the dashboard (public). */
+    suspend fun catalog(): Catalog = call("GET", "/mobile/catalog", signed = false)
 
     private suspend fun action(method: String, path: String, body: JsonObject? = null) {
         call<JsonObject?>(method, path, body ?: if (method == "GET" || method == "DELETE") null else JsonObject(emptyMap()))

@@ -68,6 +68,8 @@ class EndToEndTest {
         phone.bots() // the user's bots (may be none)
         phone.overview()
         assertTrue(phone.texts("de").containsKey("error.mobile.unpaired"))
+        // The module groups of the dashboard, and admin stays web-only.
+        assertTrue(phone.catalog().groups.any { g -> g.key == "security" && g.color == "#f87171" && g.modules.any { it.key == "anticontrol" } })
 
         // Guard on (Security tab), then a new sign-in waits for the phone.
         assertEquals(200, browser.call("PATCH", "/api/v1/account/devices/${pairing.device.id}", """{"guard":true}""").first)

@@ -56,7 +56,7 @@ fun BotDetailScreen(session: Session, id: Long, modifier: Modifier, onBack: () -
         session.call { it.bot(id) }.onSuccess { bot = it }
         val r = when (tab) {
             0 -> session.call { it.logs(id) }.onSuccess { logs = it }
-            1 -> session.call { it.modules(id) }.onSuccess { modules = it.sortedBy { m -> session.text("module.${m.key}.name") } }
+            1 -> session.call { it.modules(id) }.onSuccess { modules = it }
             else -> session.call { it.plugins(id) }.onSuccess { plugins = it }
         }
         error = r.exceptionOrNull()?.let { session.errorText(it) }
@@ -73,6 +73,18 @@ fun BotDetailScreen(session: Session, id: Long, modifier: Modifier, onBack: () -
             }
         }
         error?.let { Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.padding(16.dp)) }
+        if (tab == 1) {
+            modules?.let { list ->
+                ModulesTab(session, id, list) { key, on ->
+                    scope.launch {
+                        session.call { it.setModule(id, key, on) }
+                            .onSuccess { modules = modules?.map { x -> if (x.key == key) x.copy(enabled = on) else x } }
+                            .onFailure { error = session.errorText(it) }
+                    }
+                }
+            }
+            return@Column
+        }
         LazyColumn(Modifier.fillMaxSize().padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             when (tab) {
                 0 -> {
@@ -85,18 +97,6 @@ fun BotDetailScreen(session: Session, id: Long, modifier: Modifier, onBack: () -
                             Text(session.logText(e))
                         }
                         HorizontalDivider()
-                    }
-                }
-                1 -> {
-                    if (modules?.isEmpty() == true) item { Text(stringResource(R.string.modules_empty), Modifier.padding(top = 16.dp)) }
-                    items(modules.orEmpty(), key = { it.key }) { m ->
-                        Toggle(session.text("module.${m.key}.name"), m.enabled) { on ->
-                            scope.launch {
-                                session.call { it.setModule(id, m.key, on) }
-                                    .onSuccess { modules = modules?.map { x -> if (x.key == m.key) x.copy(enabled = on) else x } }
-                                    .onFailure { error = session.errorText(it) }
-                            }
-                        }
                     }
                 }
                 else -> {
