@@ -17,9 +17,11 @@ signing="${BOTHUB_SIGNING_DIR:-$root/../BotHubAndroitApp-signing}"
 [[ -f "$signing/bothub-release.jks" && -f "$signing/keystore-password.txt" ]] || { echo "signing key not found in $signing" >&2; exit 1; }
 [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "version must be x.y.z" >&2; exit 1; }
 password="$(cat "$signing/keystore-password.txt")"
+# Docker Desktop on Windows (Git Bash) wants D:/… paths.
+winpath() { (cd "$1" && (pwd -W 2>/dev/null || pwd)); }
 
 MSYS_NO_PATHCONV=1 docker run --rm \
-  -v "$root:/app" -v "$signing:/signing:ro" -v bothub-gradle:/root/.gradle -w /app \
+  -v "$(winpath "$root"):/app" -v "$(winpath "$signing"):/signing:ro" -v bothub-gradle:/root/.gradle -w /app \
   -e BOTHUB_KEYSTORE=/signing/bothub-release.jks -e BOTHUB_KEYSTORE_PASSWORD="$password" -e BOTHUB_KEY_ALIAS=bothub \
   bothub-android sh -c "./gradlew --console=plain :core:test :app:testDebugUnitTest :app:assembleRelease -PappVersion=$version \
     && \$ANDROID_HOME/build-tools/35.0.0/apksigner verify --print-certs app/build/outputs/apk/release/app-release.apk"
